@@ -4,8 +4,13 @@ var bodyParser = require('body-parser');
 var items = require('../database-mysql');
 // var items = require('../database-mongo');
 
-var $ = require('jQuery');
+var $ = require('jquery');
+var request = require('request');
 var utils = require('./express-utils');
+var options = {
+  url: 'http://xkcd.com/614/info.0.json',
+  method: 'GET'
+};
 
 var app = express();
 
@@ -23,18 +28,37 @@ app.get('/items', function (req, res) {
   });
 });
 
-
-app.post('/items', function (req, res) {
-  $.ajax({
-    url: 'http://xkcd.com/614/info.0.json',
-    type: 'GET',
-    success: function(data) {
-      console.log(data);
-    },
-    error: function(err) {
-      console.error(err);
-    }
-  });
+app.post('/', function (req, res) {
+  let stripNumber = '';
+  req.on('error', function(err) {
+    console.error(err);
+  }).on('data', function(chunk) {
+    stripNumber += chunk;
+  }).on('end', function() {
+    stripNumber = stripNumber.toString();
+    //options.url = `http://xkcd.com/${stripNumber}/info.0.json`;
+    request(options, function(error, response, body) {
+      if (error) { console.error(error); }
+      //body = JSON.parse(body);
+      console.log('body from xkcd: ', body);
+      if (body) {
+        res.status(200).send(body);
+        // console.log(body);
+      } else {
+        res.status(404).send('no strip for number: ' + stripNumber);
+      }
+    });
+  })
+  // $.ajax({
+  //   url: 'http://xkcd.com/614/info.0.json',
+  //   type: 'GET',
+  //   success: function(data) {
+  //     console.log(data);
+  //   },
+  //   error: function(err) {
+  //     console.error(err);
+  //   }
+  // });
 });
 
 app.listen(3000, function() {
