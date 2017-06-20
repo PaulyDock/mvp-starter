@@ -4,14 +4,14 @@ var bodyParser = require('body-parser');
 var items = require('../database-mysql');
 // var items = require('../database-mongo');
 
+var $ = require('jQuery');
+var utils = require('./express-utils');
+
 var app = express();
 
+console.log('items from index.js on server: ', items);
 // UNCOMMENT FOR REACT
 app.use(express.static(__dirname + '/../react-client/dist'));
-
-// UNCOMMENT FOR ANGULAR
-// app.use(express.static(__dirname + '/../angular-client'));
-// app.use(express.static(__dirname + '/../node_modules'));
 
 app.get('/items', function (req, res) {
   items.selectAll(function(err, data) {
@@ -19,6 +19,20 @@ app.get('/items', function (req, res) {
       res.sendStatus(500);
     } else {
       res.json(data);
+    }
+  });
+});
+
+
+app.post('/items', function (req, res) {
+  $.ajax({
+    url: 'http://xkcd.com/614/info.0.json',
+    type: 'GET',
+    success: function(data) {
+      console.log(data);
+    },
+    error: function(err) {
+      console.error(err);
     }
   });
 });
