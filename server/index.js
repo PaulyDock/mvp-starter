@@ -8,9 +8,13 @@ var $ = require('jquery');
 var request = require('request');
 var utils = require('./express-utils');
 var options = {
-  url: 'http://xkcd.com/614/info.0.json',
-  method: 'GET'
+  method: 'GET',
+  host: 'xkcd.com',
+  path: '/614/info.0.json'
+//  url: 'http://xkcd.com/614/info.0.json'
 };
+var queryString = "SELECT * from items";
+
 
 var app = express();
 
@@ -36,7 +40,10 @@ app.post('/', function (req, res) {
     stripNumber += chunk;
   }).on('end', function() {
     stripNumber = stripNumber.toString();
-    //options.url = `http://xkcd.com/${stripNumber}/info.0.json`;
+    stripNumber = stripNumber.split('=')[1];
+    console.log('stripNumber: ', stripNumber);
+    options.url = `http://xkcd.com/${stripNumber}/info.0.json`;
+    console.log('options: ', options);
     request(options, function(error, response, body) {
       if (error) { console.error(error); }
       //body = JSON.parse(body);
@@ -45,7 +52,7 @@ app.post('/', function (req, res) {
         res.status(200).send(body);
         // console.log(body);
       } else {
-        res.status(404).send('no strip for number: ' + stripNumber);
+        res.status(404).send('no strip for number: ' + stripNumber + ' body' + body);
       }
     });
   })
